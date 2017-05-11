@@ -91,7 +91,6 @@ public interface IStorage {
   Optional<RepairUnit> getRepairUnit(String cluster, String keyspace,
       Set<String> columnFamilyNames);
 
-
   boolean updateRepairSegment(RepairSegment newRepairSegment);
 
   Optional<RepairSegment> getRepairSegment(UUID id);

@@ -106,7 +106,6 @@ public class RepairSegment {
 
   public static class Builder {
 
-
     public final RingRange tokenRange;
     private final UUID repairUnitId;
     private UUID runId;
