@@ -8,6 +8,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -397,7 +400,13 @@ public final class CassandraStorage implements IStorage {
     for(Row segmentRow : segmentsIdResultSet) {
         segments.add(createRepairSegmentFromRow(segmentRow));
     }
+
     return segments;
+  }
+  
+  private boolean segmentIsWithinRange(RepairSegment segment, RingRange range) {
+    return range.encloses(new RingRange(segment.getStartToken(), segment.getEndToken()));
+    
   }
 
   private static RepairSegment createRepairSegmentFromRow(Row segmentRow){
@@ -434,7 +443,7 @@ public final class CassandraStorage implements IStorage {
     for(RepairSegment seg:segments){
       if(seg.getState().equals(State.NOT_STARTED) // State condition
           && ((range.isPresent() &&
-              (range.get().getStart().compareTo(seg.getStartToken())>=0 || range.get().getEnd().compareTo(seg.getEndToken())<=0)
+              (segmentIsWithinRange(seg, range.get()))
               ) || !range.isPresent()) // Token range condition
           ){
         segment = seg;
@@ -443,7 +452,8 @@ public final class CassandraStorage implements IStorage {
     }
     return Optional.fromNullable(segment);
   }
-
+  
+  
   @Override
   public Optional<RepairSegment> getNextFreeSegment(UUID runId) {
     return getSegment(runId, Optional.<RingRange>absent());
