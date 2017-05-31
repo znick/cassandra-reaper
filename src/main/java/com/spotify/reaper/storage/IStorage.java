@@ -154,9 +154,9 @@ public interface IStorage {
   @NotNull
   Collection<RepairScheduleStatus> getClusterScheduleStatuses(String clusterName);
   
-  boolean takeLeadOnSegment(long segmentId);
-  boolean renewLeadOnSegment(long segmentId);
-  void releaseLeadOnSegment(long segmentId);
+  boolean takeLeadOnSegment(UUID segmentId);
+  boolean renewLeadOnSegment(UUID segmentId);
+  void releaseLeadOnSegment(UUID segmentId);
   void storeHostMetrics(HostMetrics hostMetrics);
   Optional<HostMetrics> getHostMetrics(String hostName);
   

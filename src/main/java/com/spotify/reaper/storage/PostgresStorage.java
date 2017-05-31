@@ -498,17 +498,17 @@ public final class PostgresStorage implements IStorage {
   }
 
   @Override
-  public boolean takeLeadOnSegment(long segmentId) {
+  public boolean takeLeadOnSegment(UUID segmentId) {
     return true;
   }
 
   @Override
-  public boolean renewLeadOnSegment(long segmentId) {
+  public boolean renewLeadOnSegment(UUID segmentId) {
     return true;
   }
 
   @Override
-  public void releaseLeadOnSegment(long segmentId) {
+  public void releaseLeadOnSegment(UUID segmentId) {
     // Not supported with Postgres/H2
   }
 

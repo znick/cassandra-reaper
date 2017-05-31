@@ -490,17 +490,17 @@ public final class MemoryStorage implements IStorage {
   }
 
   @Override
-  public boolean takeLeadOnSegment(long segmentId) {
+  public boolean takeLeadOnSegment(UUID segmentId) {
     return true;
   }
 
   @Override
-  public boolean renewLeadOnSegment(long segmentId) {
+  public boolean renewLeadOnSegment(UUID segmentId) {
     return true;
   }
 
   @Override
-  public void releaseLeadOnSegment(long segmentId) {
+  public void releaseLeadOnSegment(UUID segmentId) {
     // Fault tolerance is not supported with this storage backend
   }
 
@@ -530,7 +530,7 @@ public final class MemoryStorage implements IStorage {
   }
 
   @Override
-  public Collection<RepairSegment> getRepairSegmentsForRunInLocalMode(long runId, List<RingRange> localRanges) {
+  public Collection<RepairSegment> getRepairSegmentsForRunInLocalMode(UUID runId, List<RingRange> localRanges) {
     throw new UnsupportedOperationException("Cannot run local mode with memory storage");
   }
 }

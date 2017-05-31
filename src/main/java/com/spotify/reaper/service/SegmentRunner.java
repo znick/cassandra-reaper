@@ -234,7 +234,7 @@ public final class SegmentRunner implements RepairStatusHandler, Runnable {
           long lastLoopTime = System.currentTimeMillis();
           while (System.currentTimeMillis() < maxTime) {
             condition.await(waitTime, TimeUnit.MILLISECONDS);
-            if(lastLoopTime + 60_000 > System.currentTimeMillis() || context.storage.getRepairSegment(segmentId).get().getState() == RepairSegment.State.DONE){
+            if(lastLoopTime + 60_000 > System.currentTimeMillis() || context.storage.getRepairSegment(segment.getRunId(), segmentId).get().getState() == RepairSegment.State.DONE){
               // The condition has been interrupted, meaning the repair might be over
               break;
             }
