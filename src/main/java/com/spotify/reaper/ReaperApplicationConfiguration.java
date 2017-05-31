@@ -101,6 +101,10 @@ public class ReaperApplicationConfiguration extends Configuration {
   @JsonProperty
   private Integer repairManagerSchedulingIntervalSeconds;
 
+  @JsonProperty
+  @DefaultValue("false")
+  private Boolean activateQueryLogger;
+
   public int getSegmentCount() {
     return segmentCount;
   }
@@ -228,6 +232,14 @@ public class ReaperApplicationConfiguration extends Configuration {
   
   public Boolean getLocalJmxMode() {
     return this.localJmxMode==null?Boolean.FALSE:this.localJmxMode;
+  }
+  
+  public void setActivateQueryLogger(Boolean activateQueryLogger) {
+    this.activateQueryLogger = activateQueryLogger;
+  }
+  
+  public Boolean getActivateQueryLogger() {
+    return this.activateQueryLogger==null?Boolean.FALSE:this.activateQueryLogger;
   }
 
   public void setUseAddressTranslator(Boolean useAddressTranslator) {

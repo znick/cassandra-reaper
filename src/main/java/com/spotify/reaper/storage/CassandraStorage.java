@@ -96,7 +96,9 @@ public final class CassandraStorage implements IStorage {
   private DateTime lastHeartBeat = DateTime.now();
   
   public CassandraStorage(ReaperApplicationConfiguration config, Environment environment) {
-    cassandra = config.getCassandraFactory().build(environment).register(QueryLogger.builder().build());
+    cassandra = config.getCassandraFactory().build(environment);
+    if(config.getActivateQueryLogger())
+      cassandra.register(QueryLogger.builder().build());
     CodecRegistry codecRegistry = cassandra.getConfiguration().getCodecRegistry();
     codecRegistry.register(new DateTimeCodec());
     session = cassandra.connect(config.getCassandraFactory().getKeyspace());
@@ -404,7 +406,6 @@ public final class CassandraStorage implements IStorage {
     if(segmentRow != null){
       segment = createRepairSegmentFromRow(segmentRow);
     }
-    LOG.info("Refreshed segment {}", segment.getId());
 
     return Optional.fromNullable(segment);
   }
@@ -483,8 +484,10 @@ public final class CassandraStorage implements IStorage {
               (segmentIsWithinRange(seg, range.get()))
               ) || !range.isPresent()) // Token range condition
           ){
-        segment = seg;
-        break;
+        if(takeLeadOnSegment(seg.getId())) {
+          segment = seg;
+          break;
+        }
       }
     }
     return Optional.fromNullable(segment);
@@ -761,6 +764,8 @@ public final class CassandraStorage implements IStorage {
       LOG.debug("Renewed lead on segment {}", segmentId);
       return true;
     }
+    
+    LOG.debug("Failed to renew lead on segment {}", segmentId);
     return false;
   }
 
