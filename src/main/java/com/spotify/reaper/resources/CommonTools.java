@@ -316,7 +316,7 @@ public final class CommonTools {
         List<BigInteger> tokens = jmxProxy.getTokens();
         cassandraVersion = Optional.fromNullable(jmxProxy.getCassandraVersion());
         break;
-      } catch (ReaperException e) {
+      } catch (Exception e) {
         LOG.warn("couldn't connect to host: {}, will try next one", host, e);
       }
     }
