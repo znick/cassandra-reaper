@@ -29,6 +29,7 @@ import com.spotify.reaper.service.RingRange;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.validation.constraints.NotNull;
 
@@ -58,15 +59,15 @@ public interface IStorage {
    */
   Optional<Cluster> deleteCluster(String clusterName);
 
-  RepairRun addRepairRun(RepairRun.Builder repairRun);
+  RepairRun addRepairRun(RepairRun.Builder repairRun, Collection<RepairSegment.Builder> newSegments);
 
   boolean updateRepairRun(RepairRun repairRun);
 
-  Optional<RepairRun> getRepairRun(long id);
+  Optional<RepairRun> getRepairRun(UUID id);
 
   Collection<RepairRun> getRepairRunsForCluster(String clusterName);
 
-  Collection<RepairRun> getRepairRunsForUnit(long repairUnitId);
+  Collection<RepairRun> getRepairRunsForUnit(UUID repairUnitId);
 
   Collection<RepairRun> getRepairRunsWithState(RepairRun.RunState runState);
 
@@ -77,11 +78,11 @@ public interface IStorage {
    * @param id The id of the RepairRun instance to delete, and all segments for it.
    * @return The deleted RepairRun instance, if delete succeeds, with state set to DELETED.
    */
-  Optional<RepairRun> deleteRepairRun(long id);
+  Optional<RepairRun> deleteRepairRun(UUID id);
 
   RepairUnit addRepairUnit(RepairUnit.Builder newRepairUnit);
 
-  Optional<RepairUnit> getRepairUnit(long id);
+  Optional<RepairUnit> getRepairUnit(UUID id);
 
   /**
    * Get a stored RepairUnit targeting the given tables in the given keyspace.
@@ -94,16 +95,15 @@ public interface IStorage {
   Optional<RepairUnit> getRepairUnit(String cluster, String keyspace,
       Set<String> columnFamilyNames);
 
-  void addRepairSegments(Collection<RepairSegment.Builder> newSegments, long runId);
-
   boolean updateRepairSegment(RepairSegment newRepairSegment);
 
-  Optional<RepairSegment> getRepairSegment(long id);
+  Optional<RepairSegment> getRepairSegment(UUID runId, UUID segmentId);
 
-  Collection<RepairSegment> getRepairSegmentsForRun(long runId);
-  Collection<RepairSegment> getRepairSegmentsForRunInLocalMode(long runId, List<RingRange> localRanges);
+  Collection<RepairSegment> getRepairSegmentsForRun(UUID runId);
+  
+  Collection<RepairSegment> getRepairSegmentsForRunInLocalMode(UUID repairRunId, List<RingRange> localRanges);
 
-  Optional<RepairSegment> getNextFreeSegment(long runId);
+  Optional<RepairSegment> getNextFreeSegment(UUID runId);
 
   /**
    * @param runId the run id that the segment belongs to.
@@ -112,21 +112,21 @@ public interface IStorage {
    *              that covers the whole ring.
    * @return a segment enclosed by the range with state NOT_STARTED, or nothing.
    */
-  Optional<RepairSegment> getNextFreeSegmentInRange(long runId, RingRange range);
+  Optional<RepairSegment> getNextFreeSegmentInRange(UUID runId, RingRange range);
 
-  Collection<RepairSegment> getSegmentsWithState(long runId, RepairSegment.State segmentState);
+  Collection<RepairSegment> getSegmentsWithState(UUID runId, RepairSegment.State segmentState);
 
   Collection<RepairParameters> getOngoingRepairsInCluster(String clusterName);
 
-  Collection<Long> getRepairRunIdsForCluster(String clusterName);
+  Collection<UUID> getRepairRunIdsForCluster(String clusterName);
 
-  int getSegmentAmountForRepairRun(long runId);
+  int getSegmentAmountForRepairRun(UUID runId);
 
-  int getSegmentAmountForRepairRunWithState(long runId, RepairSegment.State state);
+  int getSegmentAmountForRepairRunWithState(UUID runId, RepairSegment.State state);
 
   RepairSchedule addRepairSchedule(RepairSchedule.Builder repairSchedule);
 
-  Optional<RepairSchedule> getRepairSchedule(long repairScheduleId);
+  Optional<RepairSchedule> getRepairSchedule(UUID repairScheduleId);
 
   Collection<RepairSchedule> getRepairSchedulesForCluster(String clusterName);
 
@@ -146,7 +146,7 @@ public interface IStorage {
    * @param id The id of the RepairSchedule instance to delete.
    * @return The deleted RepairSchedule instance, if delete succeeds, with state set to DELETED.
    */
-  Optional<RepairSchedule> deleteRepairSchedule(long id);
+  Optional<RepairSchedule> deleteRepairSchedule(UUID id);
 
   @NotNull
   Collection<RepairRunStatus> getClusterRunStatuses(String clusterName, int limit);

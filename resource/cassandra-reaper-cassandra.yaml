@@ -13,6 +13,7 @@ incrementalRepair: false
 allowUnreachableNodes: false
 enableDynamicSeedList: true
 localJmxMode: false
+repairManagerSchedulingIntervalSeconds: 30
 
 jmxPorts:
   127.0.0.1: 7100
@@ -27,14 +28,14 @@ jmxPorts:
 logging:
   level: INFO
   loggers:
-    com.datastax.driver.core.QueryLogger.NORMAL:
-      level: DEBUG
-      additive: false
-      appenders:
-        - type: file
-          currentLogFilename: query-logger.log
-          archivedLogFilenamePattern: query-logger-%d.log.gz
-          archivedFileCount: 2
+#    com.datastax.driver.core.QueryLogger.NORMAL:
+#      level: DEBUG
+#      additive: false
+#      appenders:
+#        - type: file
+#          currentLogFilename: query-logger.log
+#          archivedLogFilenamePattern: query-logger-%d.log.gz
+#          archivedFileCount: 2
     io.dropwizard: WARN
     org.eclipse.jetty: WARN
   appenders:

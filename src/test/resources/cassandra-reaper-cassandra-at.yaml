@@ -8,12 +8,14 @@ repairRunThreadCount: 15
 hangingRepairTimeoutMins: 1
 storageType: cassandra
 incrementalRepair: false
+allowUnreachableNodes: true
 
 logging:
   level: DEBUG
   loggers:
     io.dropwizard: INFO
     org.eclipse.jetty: INFO
+    com.datastax.driver.core.QueryLogger.NORMAL: INFO
   appenders:
     - type: console
 

@@ -51,6 +51,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -88,15 +89,12 @@ public class RepairRunnerTest {
         storage.addRepairUnit(new RepairUnit.Builder(CLUSTER_NAME, KS_NAME, CF_NAMES, INCREMENTAL_REPAIR));
     DateTimeUtils.setCurrentMillisFixed(TIME_RUN);
     RepairRun run = storage.addRepairRun(
-        new RepairRun.Builder(CLUSTER_NAME, cf.getId(), DateTime.now(), INTENSITY, 1,
-                              RepairParallelism.PARALLEL));
-    storage.addRepairSegments(Collections.singleton(
-        new RepairSegment.Builder(run.getId(), new RingRange(BigInteger.ZERO, BigInteger.ONE),
-                                  cf.getId())), run.getId());
-    final long RUN_ID = run.getId();
-    final long SEGMENT_ID = storage.getNextFreeSegment(run.getId()).get().getId();
+        new RepairRun.Builder(CLUSTER_NAME, cf.getId(), DateTime.now(), INTENSITY, 1, RepairParallelism.PARALLEL),
+        Collections.singleton(new RepairSegment.Builder(new RingRange(BigInteger.ZERO, BigInteger.ONE), cf.getId())));
+    final UUID RUN_ID = run.getId();
+    final UUID SEGMENT_ID = storage.getNextFreeSegment(run.getId()).get().getId();
 
-    assertEquals(storage.getRepairSegment(SEGMENT_ID).get().getState(),
+    assertEquals(storage.getRepairSegment(RUN_ID, SEGMENT_ID).get().getState(),
                  RepairSegment.State.NOT_STARTED);
     AppContext context = new AppContext();
     context.storage = storage;
@@ -126,7 +124,7 @@ public class RepairRunnerTest {
               @Override
               public Integer answer(InvocationOnMock invocation) throws Throwable {
                 assertEquals(RepairSegment.State.NOT_STARTED,
-                             storage.getRepairSegment(SEGMENT_ID).get().getState());
+                             storage.getRepairSegment(RUN_ID, SEGMENT_ID).get().getState());
 
                 final int repairNumber = repairAttempts.getAndIncrement();
                 switch (repairNumber) {
@@ -137,7 +135,7 @@ public class RepairRunnerTest {
                         handler.get()
                             .handle(repairNumber, Optional.of(ActiveRepairService.Status.STARTED), Optional.absent(), null);
                         assertEquals(RepairSegment.State.RUNNING,
-                                     storage.getRepairSegment(SEGMENT_ID).get().getState());
+                                     storage.getRepairSegment(RUN_ID, SEGMENT_ID).get().getState());
                       }
                     }.start();
                     break;
@@ -148,11 +146,11 @@ public class RepairRunnerTest {
                         handler.get()
                             .handle(repairNumber, Optional.of(ActiveRepairService.Status.STARTED), Optional.absent(), null);
                         assertEquals(RepairSegment.State.RUNNING,
-                            storage.getRepairSegment(SEGMENT_ID).get().getState());
+                            storage.getRepairSegment(RUN_ID, SEGMENT_ID).get().getState());
                         handler.get()
                             .handle(repairNumber, Optional.of(ActiveRepairService.Status.SESSION_SUCCESS), Optional.absent(), null);
                         assertEquals(RepairSegment.State.DONE,
-                            storage.getRepairSegment(SEGMENT_ID).get().getState());
+                            storage.getRepairSegment(RUN_ID, SEGMENT_ID).get().getState());
                         handler.get()
                             .handle(repairNumber, Optional.of(ActiveRepairService.Status.FINISHED), Optional.absent(), null);
                         mutex.release();
@@ -196,15 +194,12 @@ public class RepairRunnerTest {
         storage.addRepairUnit(new RepairUnit.Builder(CLUSTER_NAME, KS_NAME, CF_NAMES, INCREMENTAL_REPAIR));
     DateTimeUtils.setCurrentMillisFixed(TIME_RUN);
     RepairRun run = storage.addRepairRun(
-        new RepairRun.Builder(CLUSTER_NAME, cf.getId(), DateTime.now(), INTENSITY, 1,
-                              RepairParallelism.PARALLEL));
-    storage.addRepairSegments(Collections.singleton(
-        new RepairSegment.Builder(run.getId(), new RingRange(BigInteger.ZERO, BigInteger.ONE),
-                                  cf.getId())), run.getId());
-    final long RUN_ID = run.getId();
-    final long SEGMENT_ID = storage.getNextFreeSegment(run.getId()).get().getId();
+        new RepairRun.Builder(CLUSTER_NAME, cf.getId(), DateTime.now(), INTENSITY, 1, RepairParallelism.PARALLEL),
+        Collections.singleton(new RepairSegment.Builder(new RingRange(BigInteger.ZERO, BigInteger.ONE), cf.getId())));
+    final UUID RUN_ID = run.getId();
+    final UUID SEGMENT_ID = storage.getNextFreeSegment(run.getId()).get().getId();
 
-    assertEquals(storage.getRepairSegment(SEGMENT_ID).get().getState(),
+    assertEquals(storage.getRepairSegment(RUN_ID, SEGMENT_ID).get().getState(),
                  RepairSegment.State.NOT_STARTED);
     AppContext context = new AppContext();
     context.storage = storage;
@@ -235,7 +230,7 @@ public class RepairRunnerTest {
               @Override
               public Integer answer(InvocationOnMock invocation) throws Throwable {
                 assertEquals(RepairSegment.State.NOT_STARTED,
-                             storage.getRepairSegment(SEGMENT_ID).get().getState());
+                             storage.getRepairSegment(RUN_ID, SEGMENT_ID).get().getState());
 
                 final int repairNumber = repairAttempts.getAndIncrement();
                 switch (repairNumber) {
@@ -246,7 +241,7 @@ public class RepairRunnerTest {
                         handler.get()
                             .handle(repairNumber, Optional.absent(), Optional.of(ProgressEventType.START), null);
                         assertEquals(RepairSegment.State.RUNNING,
-                                     storage.getRepairSegment(SEGMENT_ID).get().getState());
+                                     storage.getRepairSegment(RUN_ID, SEGMENT_ID).get().getState());
                       }
                     }.start();
                     break;
@@ -257,11 +252,11 @@ public class RepairRunnerTest {
                         handler.get()
                             .handle(repairNumber, Optional.absent(), Optional.of(ProgressEventType.START), null);
                         assertEquals(RepairSegment.State.RUNNING,
-                            storage.getRepairSegment(SEGMENT_ID).get().getState());
+                            storage.getRepairSegment(RUN_ID, SEGMENT_ID).get().getState());
                         handler.get()
                             .handle(repairNumber, Optional.absent(), Optional.of(ProgressEventType.SUCCESS), null);
                         assertEquals(RepairSegment.State.DONE,
-                            storage.getRepairSegment(SEGMENT_ID).get().getState());
+                            storage.getRepairSegment(RUN_ID, SEGMENT_ID).get().getState());
                         handler.get()
                             .handle(repairNumber, Optional.absent(), Optional.of(ProgressEventType.COMPLETE), null);
                         mutex.release();
@@ -305,24 +300,22 @@ public class RepairRunnerTest {
     context.config.setLocalJmxMode(false);
     
     storage.addCluster(new Cluster(CLUSTER_NAME, null, Collections.<String>singleton(null)));
-    long cf = storage.addRepairUnit(
+    UUID cf = storage.addRepairUnit(
         new RepairUnit.Builder(CLUSTER_NAME, KS_NAME, CF_NAMES, INCREMENTAL_REPAIR)).getId();
     DateTimeUtils.setCurrentMillisFixed(TIME_RUN);
     RepairRun run = storage.addRepairRun(
-        new RepairRun.Builder(CLUSTER_NAME, cf, DateTime.now(), INTENSITY, 1,
-                              RepairParallelism.PARALLEL));
-    storage.addRepairSegments(Lists.newArrayList(
-        new RepairSegment.Builder(run.getId(), new RingRange(BigInteger.ZERO, BigInteger.ONE), cf)
-            .state(RepairSegment.State.RUNNING).startTime(DateTime.now()).coordinatorHost("reaper")
-            .repairCommandId(1337),
-        new RepairSegment.Builder(run.getId(), new RingRange(BigInteger.ONE, BigInteger.ZERO), cf)
-    ), run.getId());
-    final long RUN_ID = run.getId();
-    final long SEGMENT_ID = storage.getNextFreeSegment(run.getId()).get().getId();
+        new RepairRun.Builder(CLUSTER_NAME, cf, DateTime.now(), INTENSITY, 1, RepairParallelism.PARALLEL),
+        Lists.newArrayList(
+            new RepairSegment.Builder(new RingRange(BigInteger.ZERO, BigInteger.ONE), cf)
+                .state(RepairSegment.State.RUNNING).startTime(DateTime.now()).coordinatorHost("reaper")
+                .repairCommandId(1337),
+            new RepairSegment.Builder(new RingRange(BigInteger.ONE, BigInteger.ZERO), cf)));
+    final UUID RUN_ID = run.getId();
+    final UUID SEGMENT_ID = storage.getNextFreeSegment(run.getId()).get().getId();
 
     context.repairManager.initializeThreadPool(1, 500, TimeUnit.MILLISECONDS, 1, TimeUnit.MILLISECONDS);
 
-    assertEquals(storage.getRepairSegment(SEGMENT_ID).get().getState(),
+    assertEquals(storage.getRepairSegment(RUN_ID, SEGMENT_ID).get().getState(),
                  RepairSegment.State.NOT_STARTED);
     context.jmxConnectionFactory = new JmxConnectionFactory() {
       @Override
@@ -341,7 +334,7 @@ public class RepairRunnerTest {
               @Override
               public Integer answer(InvocationOnMock invocation) throws Throwable {
                 assertEquals(RepairSegment.State.NOT_STARTED,
-                             storage.getRepairSegment(SEGMENT_ID).get().getState());
+                             storage.getRepairSegment(RUN_ID, SEGMENT_ID).get().getState());
                 new Thread() {
                   @Override
                   public void run() {
