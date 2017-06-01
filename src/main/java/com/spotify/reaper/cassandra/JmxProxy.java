@@ -184,7 +184,7 @@ public class JmxProxy implements NotificationListener, AutoCloseable {
       LOG.debug("JMX connection to {} properly connected: {}",
           host, jmxUrl.toString());
       return proxy;
-    } catch (IOException | InstanceNotFoundException e) {
+    } catch (Exception e) {
       LOG.error("Failed to establish JMX connection to {}:{}", host, port);
       throw new ReaperException("Failure when establishing JMX connection", e);
     }

@@ -313,10 +313,9 @@ public final class CommonTools {
     Optional<String> cassandraVersion = Optional.absent();
     for (String host : cluster.getSeedHosts()) {
       try (JmxProxy jmxProxy = context.jmxConnectionFactory.connect(host)) {
-        List<BigInteger> tokens = jmxProxy.getTokens();
         cassandraVersion = Optional.fromNullable(jmxProxy.getCassandraVersion());
         break;
-      } catch (Exception e) {
+      } catch (ReaperException e) {
         LOG.warn("couldn't connect to host: {}, will try next one", host, e);
       }
     }

@@ -60,6 +60,7 @@ public final class SegmentRunner implements RepairStatusHandler, Runnable {
   private static final int MAX_TIMEOUT_EXTENSIONS = 10;
   private static final Pattern REPAIR_UUID_PATTERN =
       Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
+  private static final long SLEEP_TIME_AFTER_POSTPONE_IN_MS = 10000;
 
   private final AppContext context;
   private final UUID segmentId;
@@ -140,6 +141,12 @@ public final class SegmentRunner implements RepairStatusHandler, Runnable {
     synchronized (condition) {
       RepairSegment segment = context.storage.getRepairSegment(repairRunner.getRepairRunId(), segmentId).get();
       postpone(context, segment, context.storage.getRepairUnit(segment.getRepairUnitId()));
+    }
+    
+    try {
+      Thread.sleep(SLEEP_TIME_AFTER_POSTPONE_IN_MS);
+    } catch (InterruptedException e) {
+      LOG.debug("Interrupted while sleeping after a segment was postponed... weird stuff...");
     }
   }
 
@@ -313,15 +320,17 @@ public final class SegmentRunner implements RepairStatusHandler, Runnable {
     }
     
     boolean gotMetricsForAllHosts = true;
+    boolean connected = false;
 
     for (String hostName : allHosts) {
       LOG.debug("checking host '{}' for pending compactions and other repairs (can repair?)"
                 + " Run id '{}'", hostName, segment.getRunId());
+      JmxProxy hostProxy = null;
       try{
-        JmxProxy hostProxy = null;
         Optional<HostMetrics> hostMetrics;
         try{
           hostProxy = context.jmxConnectionFactory.connect(hostName);
+          connected = true;
         } 
         catch(Exception e) {
           LOG.debug("Couldn't reach host {} through JMX. Trying to collect metrics from storage...");
@@ -330,16 +339,19 @@ public final class SegmentRunner implements RepairStatusHandler, Runnable {
         
         if(!hostMetrics.isPresent()) {
           gotMetricsForAllHosts = false;
+          closeJmxConnection(hostProxy, connected);
         }
         else {
           int pendingCompactions = hostMetrics.get().getPendingCompactions();
           if (pendingCompactions > MAX_PENDING_COMPACTIONS) {
             LOG.info("SegmentRunner declined to repair segment {} because of too many pending "
                      + "compactions (> {}) on host \"{}\"", segmentId, MAX_PENDING_COMPACTIONS,
-                hostProxy.getHost());
+                     hostMetrics.get().getHostAddress());
             String msg = String.format("Postponed due to pending compactions (%d)",
                 pendingCompactions);
             repairRunner.updateLastEvent(msg);
+            
+            closeJmxConnection(hostProxy, connected);
             return false;
           }
           if (hostMetrics.get().hasRepairRunning()) {
@@ -348,6 +360,7 @@ public final class SegmentRunner implements RepairStatusHandler, Runnable {
             String msg = "Postponed due to affected hosts already doing repairs";
             repairRunner.updateLastEvent(msg);
             handlePotentialStuckRepairs(hostProxy, busyHosts, hostName);
+            closeJmxConnection(hostProxy, connected);
             return false;
           }
         }
@@ -359,12 +372,14 @@ public final class SegmentRunner implements RepairStatusHandler, Runnable {
           String msg = String.format("Postponed due to inability to collect "
                                      + "information from host %s", hostName);
           repairRunner.updateLastEvent(msg);
+          closeJmxConnection(hostProxy, connected);
           LOG.warn("Open files amount for process: " + getOpenFilesAmount());
           return false;
         }
       } catch (ConcurrentException e) {
         LOG.warn("Exception thrown while listing all nodes in cluster \"{}\" with ongoing repairs: "
             + "{}", clusterName, e);
+        closeJmxConnection(hostProxy, connected);
         return false;
       }
     }
@@ -379,6 +394,15 @@ public final class SegmentRunner implements RepairStatusHandler, Runnable {
     }
     
     return gotMetricsForAllHosts; // check if we should postpone when we cannot get all metrics, or just drop the lead
+  }
+  
+  private void closeJmxConnection(JmxProxy jmxProxy, boolean connected) {
+    if(connected)
+      try {
+        jmxProxy.close();
+      } catch (ReaperException e) {
+        LOG.warn("Could not close JMX connection to {}. Potential leak...", jmxProxy.getHost());
+      }
   }
   
   private void handlePotentialStuckRepairs(JmxProxy hostProxy, LazyInitializer<Set<String>> busyHosts, String hostName) throws ConcurrentException {
