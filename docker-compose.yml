@@ -1,6 +1,12 @@
 version: '2.2'
 
 services:
+  generate-ssl-stores:
+    build: ./docker/generate-ssl-stores
+    volumes:
+      - ./resource/generic_ca_cert.conf:/usr/src/app/generic_ca_cert.conf
+      - ./ssl-stores:/usr/src/app/ssl-stores
+
   cassandra:
     image: cassandra:3.11
     env_file:
