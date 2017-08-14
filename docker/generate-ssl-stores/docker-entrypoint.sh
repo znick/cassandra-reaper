@@ -16,7 +16,7 @@ echo "Generic Certificate Authority configuration"
 cat ${GENERIC_CA_CERT_CONFIG}
 echo
 
-rm ${WORKDIR}/ssl-stores/*
+rm -r ${WORKDIR}/ssl-stores/*
 
 # Create root Certificate Authority (CA) and verify contents.
 openssl req -config ${GENERIC_CA_CERT_CONFIG} -new -x509 -keyout ca-key -out ${ROOT_CA_CERT}
