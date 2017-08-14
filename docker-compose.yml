@@ -75,6 +75,25 @@ services:
     links:
       - cassandra
 
+  initialize-reaper_db-ssl:
+    build: ./docker/initialize-reaper_db-ssl
+    links:
+      - cassandra-ssl
+
+  reaper-ssl:
+    image: cassandra-reaper:latest
+    env_file:
+      - docker/reaper-ssl/reaper-ssl.env
+    links:
+      - cassandra-ssl
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      - ./ssl-stores/reaper-server-keystore.jks:/etc/ssl/reaper-server-keystore.jks
+      - ./ssl-stores/node-server-keystore.jks:/etc/ssl/node-server-keystore.jks
+      - ./ssl-stores/generic-server-truststore.jks:/etc/ssl/generic-server-truststore.jks
+
   reaper:
     image: cassandra-reaper:latest
     env_file:
