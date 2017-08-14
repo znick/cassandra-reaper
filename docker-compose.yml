@@ -24,6 +24,31 @@ services:
       - ./docker/cassandra/jmxremote.access:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/management/jmxremote.access
       - ./docker/cassandra/jmxremote.password:/etc/cassandra/jmxremote.password
 
+  cassandra-ssl:
+    image: cassandra-ssl
+    build:
+      context: ./docker/cassandra-ssl
+      args:
+        key_store_pwd: "keypassword"
+        trust_store_pwd: "trustpassword"
+    env_file:
+          - docker/cassandra-ssl/cassandra.env
+    mem_limit: 4g
+    memswap_limit: 4g
+    mem_swappiness: 0
+    ports:
+      - "222:22"
+      - "7000:7000"
+      - "7001:7001"
+      - "7199:7199"
+      - "9042:9042"
+    volumes:
+      - ./data/cassandra-ssl:/var/lib/cassandra
+      - ./docker/cassandra-ssl/jmxremote.access:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/management/jmxremote.access
+      - ./docker/cassandra-ssl/jmxremote.password:/etc/cassandra/jmxremote.password
+      - ./ssl-stores/node-server-keystore.jks:/etc/ssl/node-server-keystore.jks
+      - ./ssl-stores/generic-server-truststore.jks:/etc/ssl/generic-server-truststore.jks
+
   cqlsh:
     image: cassandra:3.11
     command: cqlsh cassandra
@@ -35,6 +60,15 @@ services:
     entrypoint: nodetool --host cassandra --username reaperUser --password reaperPass
     links:
       - cassandra
+
+  nodetool-ssl:
+      image: cassandra-ssl
+      entrypoint: nodetool --host cassandra-ssl --username cassandraUser --password cassandraPass --ssl
+      links:
+        - cassandra-ssl
+      volumes:
+        - ./ssl-stores/node-server-keystore.jks:/etc/ssl/node-server-keystore.jks
+        - ./ssl-stores/generic-server-truststore.jks:/etc/ssl/generic-server-truststore.jks
 
   initialize-reaper_db:
     build: ./docker/initialize-reaper_db
