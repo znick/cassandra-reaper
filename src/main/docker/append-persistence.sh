@@ -15,6 +15,8 @@ cat <<EOT >> /etc/cassandra-reaper.yml
     type: plainText
     username: ${REAPER_CASS_AUTH_USERNAME}
     password: ${REAPER_CASS_AUTH_PASSWORD}
+  ssl:
+    type: jdk
 EOT
 fi
     ;;

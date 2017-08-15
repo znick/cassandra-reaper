@@ -96,6 +96,9 @@ services:
       - docker/reaper-ssl/reaper-ssl.env
     links:
       - cassandra-ssl
+    volumes:
+      - ./ssl-stores/node-server-keystore.jks:/etc/ssl/node-server-keystore.jks
+      - ./ssl-stores/generic-server-truststore.jks:/etc/ssl/generic-server-truststore.jks
     ports:
       - "8080:8080"
       - "8081:8081"

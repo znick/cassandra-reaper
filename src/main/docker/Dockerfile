@@ -1,8 +1,6 @@
 FROM openjdk:8-jre-alpine
 
 ARG SHADED_JAR
-ARG KEY_STORE
-ARG TRUST_STORE
 
 ENV REAPER_SEGMENT_COUNT=200 \
     REAPER_REPAIR_PARALELLISM=DATACENTER_AWARE \
@@ -41,7 +39,7 @@ ENV REAPER_SEGMENT_COUNT=200 \
     REAPER_DB_URL="jdbc:h2:/var/lib/cassandra-reaper/db;MODE=PostgreSQL" \
     REAPER_DB_USERNAME="" \
     REAPER_DB_PASSWORD="" \
-    JAVA_OPTS=""
+    JAVA_OPTS="-Djmx.net.debug=ssl -Djavax.net.ssl.trustStore=/etc/ssl/generic-server-truststore.jks -Djavax.net.ssl.trustStorePassword=trustpassword -Djavax.net.ssl.keyStore=/etc/ssl/node-server-keystore.jks -Djavax.net.ssl.keyStorePassword=keypassword"
 
 ADD cassandra-reaper.yml /etc/cassandra-reaper.yml
 ADD entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -58,8 +56,6 @@ VOLUME /var/lib/cassandra-reaper
 VOLUME /etc/ssl
 
 ADD ${SHADED_JAR} /usr/local/lib/cassandra-reaper.jar
-ADD ${KEY_STORE} /etc/ssl/key-store.jks
-ADD ${TRUST_STORE} /etc/ssl/trust-store.jks
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["cassandra-reaper"]
