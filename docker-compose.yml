@@ -80,22 +80,22 @@ services:
     links:
       - cassandra-ssl
 
-  reaper-ssl:
-    image: cassandra-reaper:latest
-    env_file:
-      - docker/reaper-ssl/reaper-ssl.env
-    links:
-      - cassandra-ssl
-    ports:
-      - "8080:8080"
-      - "8081:8081"
-
   reaper:
     image: cassandra-reaper:latest
     env_file:
       - docker/reaper/reaper.env
     links:
       - cassandra
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+
+  reaper-ssl:
+    image: cassandra-reaper:latest
+    env_file:
+      - docker/reaper-ssl/reaper-ssl.env
+    links:
+      - cassandra-ssl
     ports:
       - "8080:8080"
       - "8081:8081"
