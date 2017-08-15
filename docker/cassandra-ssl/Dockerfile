@@ -14,14 +14,32 @@ RUN set -x \
     && mkdir -p ${WORKDIR}/.ssh \
     && chmod -R 700 ${WORKDIR}/.ssh
 
-COPY authorized_keys ${WORKDIR}/.ssh/authorized_keys
-RUN chmod 600 ${WORKDIR}/.ssh/authorized_keys
+# COPY authorized_keys ${WORKDIR}/.ssh/authorized_keys
+# RUN chmod 600 ${WORKDIR}/.ssh/authorized_keys
 
 
 # Set password for SSL stores used when calling nodetool
 COPY nodetool-ssl.properties ${WORKDIR}/.cassandra/nodetool-ssl.properties
 RUN sed -ie "s/KEYSTORE_PASSWORD/${KEY_STORE_PWD}/g" ${WORKDIR}/.cassandra/nodetool-ssl.properties \
     && sed -ie "s/TRUSTSTORE_PASSWORD/${TRUST_STORE_PWD}/g" ${WORKDIR}/.cassandra/nodetool-ssl.properties
+
+# Configure cassandra to only accept encrypted native protocol connections
+# First delete old config
+RUN awk '/client_encryption_options:/{while(getline && $0 != ""){}}1' /etc/cassandra/cassandra.yaml > tmp \
+    && mv tmp /etc/cassandra/cassandra.yaml
+# Second place new config
+RUN echo """client_encryption_options:\n \
+    enabled: true\n \
+    optional: false\n \
+    require_client_auth: true\n \
+    keystore: /etc/ssl/node-server-keystore.jks\n \
+    keystore_password: keypassword\n \
+    truststore: /etc/ssl/generic-server-truststore.jks\n \
+    truststore_password: trustpassword\n \
+    protocol: TLS\n \
+    algorithm: SunX509\n \
+    store_type: JKS \n \
+    cipher_suites: [TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA]""" >> /etc/cassandra/cassandra.yaml
 
 # Set JVM SSL encryption options for Cassandra
 RUN sed -ie 's/#JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.ssl=true"/JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.ssl=true"/g' /etc/cassandra/cassandra-env.sh \
