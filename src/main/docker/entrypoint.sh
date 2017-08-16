@@ -3,8 +3,6 @@
 if [ "$1" = 'cassandra-reaper' ]; then
     set -x
     su-exec reaper /usr/local/bin/append-persistence.sh
-    cat /etc/cassandra-reaper.yml
-    ls /etc/ssl
     if [ "true" = ${REAPER_CASS_NATIVE_SSL} ]; then
         JAVA_OPTS="${JAVA_OPTS} -Dssl.enable=true \
             -Djavax.net.ssl.trustStore=/etc/ssl/generic-server-truststore.jks \
