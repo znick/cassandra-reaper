@@ -97,7 +97,7 @@ services:
     links:
       - cassandra-ssl
     volumes:
-      - ./ssl-stores/node-server-keystore.jks:/etc/ssl/node-server-keystore.jks
+      - ./ssl-stores/reaper-server-keystore.jks:/etc/ssl/reaper-server-keystore.jks
       - ./ssl-stores/generic-server-truststore.jks:/etc/ssl/generic-server-truststore.jks
     ports:
       - "8080:8080"

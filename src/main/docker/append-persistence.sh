@@ -15,6 +15,10 @@ cat <<EOT >> /etc/cassandra-reaper.yml
     type: plainText
     username: ${REAPER_CASS_AUTH_USERNAME}
     password: ${REAPER_CASS_AUTH_PASSWORD}
+EOT
+fi
+if [ "true" = "${REAPER_CASS_NATIVE_SSL}" ]; then
+cat <<EOT >> /etc/cassandra-reaper.yml
   ssl:
     type: jdk
 EOT
