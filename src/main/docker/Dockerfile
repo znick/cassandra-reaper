@@ -39,7 +39,7 @@ ENV REAPER_SEGMENT_COUNT=200 \
     REAPER_DB_URL="jdbc:h2:/var/lib/cassandra-reaper/db;MODE=PostgreSQL" \
     REAPER_DB_USERNAME="" \
     REAPER_DB_PASSWORD="" \
-    JAVA_OPTS="-Djmx.net.debug=ssl -Djavax.net.ssl.trustStore=/etc/ssl/generic-server-truststore.jks -Djavax.net.ssl.trustStorePassword=trustpassword -Djavax.net.ssl.keyStore=/etc/ssl/node-server-keystore.jks -Djavax.net.ssl.keyStorePassword=keypassword"
+    JAVA_OPTS=""
 
 ADD cassandra-reaper.yml /etc/cassandra-reaper.yml
 ADD entrypoint.sh /usr/local/bin/entrypoint.sh
