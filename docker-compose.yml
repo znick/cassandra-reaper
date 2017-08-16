@@ -79,6 +79,9 @@ services:
     build: ./docker/initialize-reaper_db-ssl
     links:
       - cassandra-ssl
+    volumes:
+      - ./ssl-stores/reaper-server-keystore.jks:/etc/ssl/reaper-server-keystore.jks
+      - ./ssl-stores/ca-cert:/etc/ssl/ca-cert
 
   reaper:
     image: cassandra-reaper:latest
