@@ -33,9 +33,9 @@ RUN echo """client_encryption_options:\n \
     optional: false\n \
     require_client_auth: true\n \
     keystore: /etc/ssl/node-server-keystore.jks\n \
-    keystore_password: keypassword\n \
+    keystore_password: ${KEY_STORE_PWD}\n \
     truststore: /etc/ssl/generic-server-truststore.jks\n \
-    truststore_password: trustpassword\n \
+    truststore_password: ${TRUST_STORE_PWD}\n \
     protocol: TLS\n \
     algorithm: SunX509\n \
     store_type: JKS \n \
