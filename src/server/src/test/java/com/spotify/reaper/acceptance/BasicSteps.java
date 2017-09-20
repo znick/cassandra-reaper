@@ -165,6 +165,7 @@ public final class BasicSteps {
 
   @Given("^a reaper service is running$")
   public void a_reaper_service_is_running() throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         setupReaperTestRunner();
         //callAndExpect("GET", "/ping", Optional.<Map<String, String>>absent(),
@@ -174,6 +175,7 @@ public final class BasicSteps {
 
   @Given("^a real reaper service is running$")
   public void a_real_reaper_service_is_running() throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         setupReaperIntegrationTestRunner();
         callAndExpect("GET", "/ping", Optional.<Map<String, String>>absent(), Optional.<String>absent(), Response.Status.OK);
@@ -182,14 +184,19 @@ public final class BasicSteps {
 
   @Given("^cluster seed host \"([^\"]*)\" points to cluster with name \"([^\"]*)\"$")
   public void cluster_seed_host_points_to_cluster_with_name(String seedHost, String clusterName) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
       TestContext.addSeedHostToClusterMapping(seedHost, clusterName);
     }
   }
 
   @Given("^cluster \"([^\"]*)\" has keyspace \"([^\"]*)\" with tables \"([^\"]*)\"$")
-  public void cluster_has_keyspace_with_tables(String clusterName, String keyspace,
-                                               String tablesListStr) throws Throwable {
+  public void cluster_has_keyspace_with_tables(
+          String clusterName,
+          String keyspace,
+          String tablesListStr) throws Throwable {
+
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         Set<String> tables =
             Sets.newHashSet(CommonTools.COMMA_SEPARATED_LIST_SPLITTER.split(tablesListStr));
@@ -198,8 +205,12 @@ public final class BasicSteps {
   }
 
   @Given("^ccm cluster \"([^\"]*)\" has keyspace \"([^\"]*)\" with tables \"([^\"]*)\"$")
-  public void ccm_cluster_has_keyspace_with_tables(String clusterName, String keyspace,
-                                               String tablesListStr) throws Throwable {
+  public void ccm_cluster_has_keyspace_with_tables(
+          String clusterName,
+          String keyspace,
+          String tablesListStr) throws Throwable {
+
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         Set<String> tables =
             Sets.newHashSet(CommonTools.COMMA_SEPARATED_LIST_SPLITTER.split(tablesListStr));
@@ -211,6 +222,7 @@ public final class BasicSteps {
 
   @Given("^that we are going to use \"([^\"]*)\" as cluster seed host$")
   public void that_we_are_going_to_use_as_cluster_seed_host(String seedHost) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         TestContext.SEED_HOST = seedHost;
     }
@@ -218,6 +230,7 @@ public final class BasicSteps {
 
   @And("^reaper has no cluster with name \"([^\"]*)\" in storage$")
   public void reaper_has_no_cluster_with_name_in_storage(String clusterName) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         callAndExpect("GET", "/cluster/" + clusterName,
                       Optional.<Map<String, String>>absent(),
@@ -227,6 +240,7 @@ public final class BasicSteps {
 
   @And("^reaper has no cluster in storage$")
   public void reaper_has_no_cluster_in_storage() throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
       RUNNERS.parallelStream().forEach(runner -> {
         Response response = runner.callReaper("GET", "/cluster/",  Optional.<Map<String, String>>absent());
@@ -240,6 +254,7 @@ public final class BasicSteps {
 
   @When("^an add-cluster request is made to reaper$")
   public void an_add_cluster_request_is_made_to_reaper() throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         final StringBuffer responseData = new StringBuffer();
 
@@ -271,6 +286,7 @@ public final class BasicSteps {
 
   @Then("^reaper has a cluster called \"([^\"]*)\" in storage$")
   public void reaper_has_a_cluster_called_in_storage(String clusterName) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         callAndExpect("GET", "/cluster/" + clusterName,
                       Optional.<Map<String, String>>absent(),
@@ -280,6 +296,7 @@ public final class BasicSteps {
 
   @Then("^reaper has the last added cluster in storage$")
   public void reaper_has_the_last_added_cluster_in_storage() throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         callAndExpect("GET", "/cluster/" + TestContext.TEST_CLUSTER,
                       Optional.<Map<String, String>>absent(),
@@ -289,6 +306,7 @@ public final class BasicSteps {
 
   @And("^reaper has no scheduled repairs for \"([^\"]*)\"$")
   public void reaper_has_no_scheduled_repairs_for(String clusterName) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         callAndExpect("GET", "/repair_schedule/cluster/" + clusterName,
                       Optional.<Map<String, String>>absent(),
@@ -298,6 +316,7 @@ public final class BasicSteps {
 
   @When("^a new daily \"([^\"]*)\" repair schedule is added for \"([^\"]*)\" and keyspace \"([^\"]*)\"$")
   public void a_new_daily_repair_schedule_is_added_for(String repairType, String clusterName, String keyspace) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         ReaperTestJettyRunner runner = RUNNERS.get(RAND.nextInt(RUNNERS.size()));
         Map<String, String> params = Maps.newHashMap();
@@ -330,7 +349,11 @@ public final class BasicSteps {
   }
 
   @When("^a new daily \"([^\"]*)\" repair schedule is added for the last added cluster and keyspace \"([^\"]*)\"$")
-  public void a_new_daily_repair_schedule_is_added_for_the_last_added_cluster(String repairType, String keyspace) throws Throwable {
+  public void a_new_daily_repair_schedule_is_added_for_the_last_added_cluster(
+          String repairType,
+          String keyspace) throws Throwable {
+
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         ReaperTestJettyRunner runner = RUNNERS.get(RAND.nextInt(RUNNERS.size()));
         Map<String, String> params = Maps.newHashMap();
@@ -366,6 +389,8 @@ public final class BasicSteps {
   public void a_new_daily_repair_schedule_is_added_for_the_last_added_cluster_and_keyspace_with_next_repair_immediately(
           String keyspace)
           throws Throwable {
+
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         ReaperTestJettyRunner runner = RUNNERS.get(RAND.nextInt(RUNNERS.size()));
         LOG.info("adding a new daily repair schedule to keyspace: {}", keyspace);
@@ -399,6 +424,7 @@ public final class BasicSteps {
 
   @And("^we wait for a scheduled repair run has started for cluster \"([^\"]*)\"$")
   public void a_scheduled_repair_run_has_started_for_cluster(String clusterName) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
       RUNNERS.parallelStream().forEach(runner -> {
         LOG.info("waiting for a scheduled repair run to start for cluster: {}", clusterName);
@@ -421,6 +447,7 @@ public final class BasicSteps {
 
   @And("^reaper has scheduled repair for cluster called \"([^\"]*)\"$")
   public void reaper_has_scheduled_repair_for_cluster_called(String clusterName) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         callAndExpect("GET", "/repair_schedule/cluster/" + clusterName,
                       EMPTY_PARAMS,
@@ -429,8 +456,8 @@ public final class BasicSteps {
   }
 
   @And("^a second daily repair schedule is added for \"([^\"]*)\" and keyspace \"([^\"]*)\"$")
-  public void a_second_daily_repair_schedule_is_added_for_and_keyspace(String clusterName, String keyspace)
-      throws Throwable {
+  public void a_second_daily_repair_schedule_is_added_for_and_keyspace(String clusterName, String keyspace) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         ReaperTestJettyRunner runner = RUNNERS.get(RAND.nextInt(RUNNERS.size()));
         LOG.info("add second daily repair schedule: {}/{}", clusterName, keyspace);
@@ -450,6 +477,7 @@ public final class BasicSteps {
 
   @And("^reaper has (\\d+) scheduled repairs for cluster called \"([^\"]*)\"$")
   public void reaper_has_scheduled_repairs_for_cluster_called(int repairAmount, String clusterName) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
       CLIENTS.parallelStream().forEach(client -> {
 
@@ -471,6 +499,7 @@ public final class BasicSteps {
 
   @And("^reaper has (\\d+) scheduled repairs for the last added cluster$")
   public void reaper_has_scheduled_repairs_for_the_last_added_cluster(int repairAmount) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
       CLIENTS.parallelStream().forEach(client -> {
         await().with().pollInterval(1, SECONDS).atMost(1, MINUTES).until(() -> {
@@ -490,6 +519,7 @@ public final class BasicSteps {
 
   @When("^the last added schedule is deleted for cluster called \"([^\"]*)\"$")
   public void the_last_added_schedule_is_deleted_for_cluster_called(String clusterName) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         LOG.info("pause last added repair schedule with id: {}", TestContext.LAST_MODIFIED_ID);
         Map<String, String> params = Maps.newHashMap();
@@ -531,6 +561,7 @@ public final class BasicSteps {
 
   @When("^the last added schedule is deleted for the last added cluster$")
   public void the_last_added_schedule_is_deleted_for_the_last_added_cluster() throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         LOG.info("pause last added repair schedule with id: {}", TestContext.LAST_MODIFIED_ID);
         Map<String, String> params = Maps.newHashMap();
@@ -573,6 +604,7 @@ public final class BasicSteps {
 
   @When("^all added schedules are deleted for the last added cluster$")
   public void all_added_schedules_are_deleted_for_the_last_added_cluster() throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
       final Set<RepairScheduleStatus> schedules = Sets.newConcurrentHashSet();
 
@@ -628,6 +660,7 @@ public final class BasicSteps {
 
   @And("^deleting cluster called \"([^\"]*)\" fails$")
   public void deleting_cluster_called_fails(String clusterName) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         callAndExpect(
                 "DELETE",
@@ -640,6 +673,7 @@ public final class BasicSteps {
 
   @And("^deleting the last added cluster fails$")
   public void deleting_the_last_added_cluster_fails() throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         callAndExpect(
                 "DELETE",
@@ -652,6 +686,7 @@ public final class BasicSteps {
 
   @And("^cluster called \"([^\"]*)\" is deleted$")
   public void cluster_called_is_deleted(String clusterName) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         callAndExpect(
                 "DELETE",
@@ -679,6 +714,7 @@ public final class BasicSteps {
 
   @And("^the last added cluster is deleted$")
   public void cluster_called_is_deleted() throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         callAndExpect(
                 "DELETE",
@@ -706,6 +742,7 @@ public final class BasicSteps {
 
   @Then("^reaper has no cluster called \"([^\"]*)\" in storage$")
   public void reaper_has_no_cluster_called_in_storage(String clusterName) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         callAndExpect(
                 "GET",
@@ -719,6 +756,7 @@ public final class BasicSteps {
 
   @Then("^reaper has no longer the last added cluster in storage$")
   public void reaper_has_no_longer_the_last_added_cluster_in_storage() throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         callAndExpect(
                 "GET",
@@ -731,6 +769,7 @@ public final class BasicSteps {
 
   @And("^a new repair is added for \"([^\"]*)\" and keyspace \"([^\"]*)\"$")
   public void a_new_repair_is_added_for_and_keyspace(String clusterName, String keyspace) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         ReaperTestJettyRunner runner = RUNNERS.get(RAND.nextInt(RUNNERS.size()));
         Map<String, String> params = Maps.newHashMap();
@@ -748,6 +787,7 @@ public final class BasicSteps {
 
   @When("^a new repair is added for the last added cluster and keyspace \"([^\"]*)\"$")
   public void a_new_repair_is_added_for_the_last_added_cluster_and_keyspace(String keyspace) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         ReaperTestJettyRunner runner = RUNNERS.get(RAND.nextInt(RUNNERS.size()));
         Map<String, String> params = Maps.newHashMap();
@@ -764,6 +804,7 @@ public final class BasicSteps {
 
   @When("^a new incremental repair is added for \"([^\"]*)\" and keyspace \"([^\"]*)\"$")
   public void a_new_incremental_repair_is_added_for_and_keyspace(String clusterName, String keyspace) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         ReaperTestJettyRunner runner = RUNNERS.get(RAND.nextInt(RUNNERS.size()));
         Map<String, String> params = Maps.newHashMap();
@@ -780,8 +821,8 @@ public final class BasicSteps {
   }
 
   @When("^a new incremental repair is added for the last added cluster and keyspace \"([^\"]*)\"$")
-  public void a_new_incremental_repair_is_added_for_the_last_added_cluster_and_keyspace(String keyspace)
-      throws Throwable {
+  public void a_new_incremental_repair_is_added_for_the_last_added_cluster_and_keyspace(String keyspace) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         ReaperTestJettyRunner runner = RUNNERS.get(RAND.nextInt(RUNNERS.size()));
         Map<String, String> params = Maps.newHashMap();
@@ -799,6 +840,7 @@ public final class BasicSteps {
 
   @Then("^reaper has (\\d+) repairs for cluster called \"([^\"]*)\"$")
   public void reaper_has_repairs_for_cluster_called(int runAmount, String clusterName) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
       RUNNERS.parallelStream().forEach(runner -> {
         Response response = runner.callReaper("GET", "/repair_run/cluster/" + clusterName, EMPTY_PARAMS);
@@ -812,6 +854,7 @@ public final class BasicSteps {
 
   @Then("^reaper has (\\d+) repairs for the last added cluster$")
   public void reaper_has_repairs_for_the_last_added_cluster(int runAmount) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
       RUNNERS.parallelStream().forEach(runner -> {
         Response response =  runner.callReaper("GET", "/repair_run/cluster/" + TestContext.TEST_CLUSTER, EMPTY_PARAMS);
@@ -825,6 +868,7 @@ public final class BasicSteps {
 
   @When("^the last added repair run is deleted$")
   public void the_last_added_repair_run_is_deleted_for_cluster_called() throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
         LOG.info("delete last added repair run with id: {}", TestContext.LAST_MODIFIED_ID);
         Map<String, String> params = Maps.newHashMap();
@@ -855,8 +899,12 @@ public final class BasicSteps {
   }
 
  @When("^a new daily \"([^\"]*)\" repair schedule is added that already exists for \"([^\"]*)\" and keyspace \"([^\"]*)\"$")
-  public void a_new_daily_repair_schedule_is_added_that_already_exists_for(String repairType, String clusterName, String keyspace)
-      throws Throwable {
+  public void a_new_daily_repair_schedule_is_added_that_already_exists_for(
+          String repairType,
+          String clusterName,
+          String keyspace) throws Throwable {
+
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
       RUNNERS.parallelStream().forEach(runner -> {
         Map<String, String> params = Maps.newHashMap();
@@ -875,6 +923,7 @@ public final class BasicSteps {
 
  @And("^the last added repair is activated$")
  public void the_last_added_repair_is_activated_for() throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
       final AtomicBoolean set = new AtomicBoolean(false);
       RUNNERS.parallelStream().forEach(runner -> {
@@ -909,6 +958,7 @@ public final class BasicSteps {
 
  @When("^the last added repair is stopped$")
  public void the_last_added_repair_is_stopped_for() throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
       final AtomicBoolean set = new AtomicBoolean(false);
       // given "state" is same as the current run state
@@ -947,6 +997,7 @@ public final class BasicSteps {
 
  @And("^we wait for at least (\\d+) segments to be repaired$")
  public void we_wait_for_at_least_segments_to_be_repaired(int nbSegmentsToBeRepaired) throws Throwable {
+    Thread.sleep(500);
     synchronized (BasicSteps.class) {
       RUNNERS.parallelStream().forEach(runner -> {
         await().with().pollInterval(10, SECONDS).atMost(2, MINUTES).until(() -> {
