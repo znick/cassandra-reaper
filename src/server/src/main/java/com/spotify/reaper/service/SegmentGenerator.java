@@ -39,7 +39,8 @@ public class SegmentGenerator {
   public SegmentGenerator(String partitioner) throws ReaperException {
     if (partitioner.endsWith("RandomPartitioner")) {
       RANGE_MIN = BigInteger.ZERO;
-      RANGE_MAX = new BigInteger("2").pow(127).subtract(BigInteger.ONE);
+      //RANGE_MAX = new BigInteger("2").pow(127).subtract(BigInteger.ONE);
+      RANGE_MAX = new BigInteger("2").pow(127);
     } else if (partitioner.endsWith("Murmur3Partitioner")) {
       RANGE_MIN = new BigInteger("2").pow(63).negate();
       RANGE_MAX = new BigInteger("2").pow(63).subtract(BigInteger.ONE);
